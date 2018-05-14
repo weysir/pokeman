@@ -1,0 +1,14 @@
+{
+  "name": "pokeman",
+  "version": "0.0.1",
+  "description": "pokeman",
+  "main": "index.js",
+  "repository": "https://github.com/weysir/pokeman.git",
+  "author": "currantxx <currantxx@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "bearychat": "^1.2.0",
+    "mongodb": "^3.1.0-beta4",
+    "ws": "^5.1.1"
+  }
+}
