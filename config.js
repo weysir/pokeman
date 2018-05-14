@@ -7,11 +7,11 @@ const getEnv = (name, defaultValue) => {
 
 const config = {
   database: {
-    uri: getEnv('database_uri', 'mongodb://127.0.0.1:27017'),
-    name: getEnv('database_name', 'pokeman')
+    uri: getEnv('database_uri'),
+    name: getEnv('database_name')
   },
   bearychat: {
-    token: getEnv('rtm_token', '50c9387ad684f001b8156ec79b44eebb')
+    token: getEnv('rtm_token')
   },
 };
 
