@@ -1,4 +1,6 @@
 const bearychat = require('bearychat');
+const rtm = require('bearychat')
+  .rtm;
 const config = require('./config');
 
 const keyCurrentMessage = 'current_message';
@@ -52,5 +54,12 @@ module.exports = class Context {
 
     return this.set(keyCurrentMessage, message)
       .set(keyCurrentUser, currentUser);
+  }
+
+  async send(text) {
+    const msg = rtm
+      .message
+      .refer(this.currentMessage, text);
+    return await this.rtm.send(msg);
   }
 };

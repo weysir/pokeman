@@ -9,6 +9,7 @@ const RTMClient = require('./rtm');
 const help = require('./modules/help');
 const init = require('./modules/init');
 const shop = require('./modules/shop');
+const pack = require('./modules/pack');
 const monster = require('./modules/monster');
 const go = require('./modules/go');
 const attack = require('./modules/attack');
@@ -33,8 +34,10 @@ const getCommandHandler = command => {
       return init.handler;
     case 'player':
       return player.handler;
-    case 'monster':
+    case 'mon':
       return monster.handler;
+    case 'pack':
+      return pack.handler;
     case 'shop':
       return shop.handler;
     case 'go':
@@ -57,7 +60,7 @@ const parseArgs = (ctx, message) => {
   return args;
 };
 
-const execCommand = async(ctx, commandHandler, args) => {
+const execCommand = async (ctx, commandHandler, args) => {
   if (commandHandler !== null) {
     // NOTE 去掉主命令(eg: player / shop)
     await commandHandler(ctx, args.splice(1));
@@ -100,7 +103,6 @@ const fetchCurrentUser = async () => {
 };
 
 const main = async () => {
-
   const {
     client,
     db
