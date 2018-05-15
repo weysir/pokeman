@@ -9,7 +9,7 @@ const error = require('./error');
 // 持久数据层
 const repository = {
   collection: ctx => {
-    return ctx.db.collection("players");
+    return ctx.db.collection('players');
   },
 
   create: async (ctx, m) => {
