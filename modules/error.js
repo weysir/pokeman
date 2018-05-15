@@ -29,6 +29,10 @@ module.exports = {
 
     await respondText(ctx, text);
   },
+  itemNotFound: async ctx => {
+    const text = '无效的商品序号';
+    await respondText(ctx, text);
+  },
   invalidCommand: async ctx => {
     const text = '命令错误';
 

@@ -32,7 +32,7 @@ const repository = {
   },
 
   updateById: async (ctx, id, m) => {
-    await repository.collection(ctx)
+    return await repository.collection(ctx)
       .updateOne({
         _id: id
       }, {
