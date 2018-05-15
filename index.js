@@ -8,7 +8,6 @@ const RTMClient = require('./rtm');
 
 const help = require('./modules/help');
 const init = require('./modules/init');
-const info = require('./modules/info');
 const shop = require('./modules/shop');
 const monster = require('./modules/monster');
 const go = require('./modules/go');
@@ -32,8 +31,8 @@ const getCommandHandler = command => {
       return help.handler;
     case 'init':
       return init.handler;
-    case 'info':
-      return info.handler;
+    case 'player':
+      return player.handler;
     case 'monster':
       return monster.handler;
     case 'shop':
@@ -51,23 +50,19 @@ const parseArgs = (ctx, message) => {
   const text = message.text;
   const args = text.trim().split(' ');
 
-  if (ctx.rtm.isMentionMe(message.text, ctx.currentUser)) {
+  if (ctx.rtm.isMentionMe(message.text, ctx.currentHubot)) {
     args.shift();
   }
 
   return args;
 };
 
-const execCommand = (ctx, commandHandler, args) => {
+const execCommand = async(ctx, commandHandler, args) => {
   if (commandHandler !== null) {
-    return commandHandler(ctx, args);
+    // NOTE 去掉主命令(eg: player / shop)
+    await commandHandler(ctx, args.splice(1));
   }
-  return null;
-}
-
-const wrapWithMention = (message, returnText) => {
-  return `@<=${message.uid}=>\n${returnText}`;
-}
+};
 
 const rtmHandler = ctx => {
   return async data => {
@@ -89,14 +84,10 @@ const rtmHandler = ctx => {
     const args = parseArgs(ctx, message);
     const command = args[0];
     const commandHandler = getCommandHandler(command);
-    let rv = execCommand(ctx, commandHandler, args);
 
-    if (rv === '' || rv === null) {
-      rv = '命令错误';
-    }
-    const response = wrapWithMention(message, rv);
-    const respMessage = rtm.message.reply(message, response);
-    ctx.rtm.send(respMessage);
+    await execCommand(await ctx.fromMessage(message),
+                      commandHandler,
+                      args);
   };
 };
 
@@ -114,7 +105,7 @@ const main = async () => {
     client,
     db
   } = await setupDB();
-  
+
   try {
     const rtmClient = new RTMClient(config.bearychat.token);
     const currentHubot = await fetchCurrentUser();
