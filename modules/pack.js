@@ -1,5 +1,6 @@
 const { unknownCommand } = require('./common');
-const shopModel = require('../models/shop');
+const shopService = require('../modules/shop')
+  .service;
 const playerRepository = require('../modules/player')
   .repository;
 const inventoryService = require('../modules/inventory')
@@ -10,7 +11,7 @@ const charStartCode = 97;
 const _outputInventories = (objs) => {
   return objs.map((e, i) => {
     const c = String.fromCharCode(charStartCode + i);
-    const item = shopModel.getItemByIdx(e.item_idx);
+    const item = shopService.getItemByIdx(e.item_idx);
     return `${c}. ${item.name} x ${e.amount}`;
   }).join('\n');
 }; 

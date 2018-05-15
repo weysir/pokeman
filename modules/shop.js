@@ -66,15 +66,18 @@ const items = [
   }
 ];
 
-const getItems = () => {
-  return items;
-};
+const service = {
 
-const getItemByIdx = (idx) => {
-  if (idx < 0 || idx >= items.length) {
-    return null;
-  }
-  return items[idx];
+  getItems: () => {
+    return items;
+  },
+
+  getItemByIdx: (idx) => {
+    if (idx < 0 || idx >= items.length) {
+      return null;
+    }
+    return items[idx];
+  },
 };
 
 const charStartCode = 97;
@@ -149,5 +152,6 @@ const handler = async (ctx, args) => {
 };
 
 module.exports = {
+  service,
   handler,
 };
