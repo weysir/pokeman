@@ -1,5 +1,4 @@
 const { createCanvas, loadImage } = require('canvas');
-const fs = require('fs');
 const constants = require('./constants');
 const imageUrlRegistry = require('./imageUrlRegistry');
 const generateMonsterListImage = require('./generators/monsterList');
@@ -30,12 +29,7 @@ async function putBackgroundImage(ctx, bgUrl) {
 // }>>
 //
 // pkResults: Array<boolean>
-module.exports = async function generate(
-  command /* = constants.COMMAND_PLAYER_INIT */,
-  monsters = [] /* = [{ name: 'pikachu', type: 'MONSTER_PIKACHU', blood: 100, exp: 100 }, { name: 'pikachu', type: 'MONSTER_PIKACHU', blood: 100, exp: 100 }] */,
-  players = [] /* = [{ name: 'dorayx', money: '$1000', gender: 'male', avatarUrl: 'https://static.bearychat.com/FpMCD66rdo9ZkV4CjlHQKNEiSejo' }, { name: 'dorayx', money: '$1000', gender: 'male', avatarUrl: 'https://static.bearychat.com/FpMCD66rdo9ZkV4CjlHQKNEiSejo' }] */,
-  pkResults = [] /* = [false, true] */
-) {
+module.exports = async function generate(command, monsters = [], players = [], pkResults = []) {
   const canvas = createCanvas(500, 250);
   const ctx = canvas.getContext('2d');
   await putBackgroundImage(ctx, imageUrlRegistry[command]);
@@ -57,6 +51,8 @@ module.exports = async function generate(
     default:
   }
 
-  // return canvas.jpegStream().pipe(fs.createWriteStream(`debug-${command}.jpg`));
-  return new Promise(resolve => canvas.toDataURL('image/jpeg', { progressive: true }, (_, base64) => resolve(base64)));
+  return {
+    getBase64: () => new Promise(resolve => canvas.toDataURL('image/jpeg', { progressive: true }, (_, base64) => resolve(base64))),
+    getStream: () => canvas.jpegStream()
+  };
 };
