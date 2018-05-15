@@ -1,4 +1,4 @@
-const model = require('../models/shop');
+// const model = require('../models/shop');
 
 const _outputItem = (i, e) => {
   const c = String.fromCharCode(97 + i);

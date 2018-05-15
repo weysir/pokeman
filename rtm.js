@@ -67,6 +67,10 @@ module.exports = class RTMClient {
     return false;
   };
 
+  mention(user) {
+    return `@<=${user.id}=>`;
+  }
+
   async start(messageHandler) {
     const resp = await rtm.start({
       token: this.token,

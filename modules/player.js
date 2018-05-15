@@ -1,7 +1,9 @@
 const rtm = require('bearychat')
   .rtm;
+const bearychat = require('bearychat');
 const ObjectID = require('mongodb')
   .ObjectID;
+const config = require('../config');
 const error = require('./error');
 
 // 持久数据层
@@ -51,7 +53,8 @@ const repository = {
     return await repository.collection(ctx)
       .find({
         team_id: teamId
-      });
+      })
+      .toArray();
   }
 };
 
@@ -154,9 +157,38 @@ const service = {
   },
 
   list: async ctx => {
-    let players = await repository.listByTeamId(ctx, team.id);
+    const curPlayer = await service.getCurrentPlayer(ctx);
+    if (!curPlayer) {
+      return;
+    }
 
-    return players;
+    const fetchMembers = async ctx => {
+      const resp = await bearychat.user.list({
+        token: config.bearychat.token
+      });
+
+      return resp.json();
+    };
+
+    const curUser = await ctx.currentUser;
+    const players = await repository.listByTeamId(ctx, curUser.team_id);
+    const members = await fetchMembers();
+
+    const text = [
+      '团队排行榜',
+      ...players
+      .sort((x, y) => y.change - x.change)
+      .map((p, idx) => {
+        const member = members.find(m => m.id === p.user_id);
+        return `${idx + 1} - ${p.name}(${ctx.rtm.mention(member)}), 拥有 ${p.change} Xb`;
+      })
+    ].join('\n');
+
+    const respMessage = rtm
+      .message
+      .refer(ctx.currentMessage, text);
+
+    await ctx.rtm.send(respMessage);
   }
 };
 
@@ -199,6 +231,9 @@ const handler = async (ctx, args) => {
   switch (args[0]) {
     case 'info':
       await service.info(ctx);
+      break;
+    case 'list':
+      await service.list(ctx);
       break;
     case 'rename':
       await rename(ctx, args);
