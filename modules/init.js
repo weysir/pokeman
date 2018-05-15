@@ -1,6 +1,7 @@
 const rtm = require('bearychat')
   .rtm;
 const player = require('./player');
+const monster = require('./monster');
 const error = require('./error');
 
 const handler = async (ctx, args) => {
@@ -14,17 +15,16 @@ const handler = async (ctx, args) => {
   let curPlayer = await player.repository.getByUid(ctx, curUser.id);
 
   if (!curPlayer) {
+    const m = await monster.service.random(ctx);
     curPlayer = await player.repository.create(ctx, {
       name: curUser.name,
       user_id: curUser.id,
       team_id: curUser.team_id,
       gender: '未知',
       change: 100,
+      monsters: [m],
     });
   }
-
-  // TODO 初始化精灵
-  // TODO 初始化背包存货
 
   const curMessage = ctx.currentMessage;
 
