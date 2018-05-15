@@ -3,7 +3,6 @@ const rtm = require('bearychat')
 const { unknownCommand } = require('./common');
 const playerRepository = require('../modules/player')
   .repository;
-const shopModel = require('../models/shop')
 const playerRepostiory = require('../modules/player')
   .repository;
 const shopRepository = require('../modules/shop')
@@ -11,14 +10,80 @@ const shopRepository = require('../modules/shop')
 const inventoryService = require('../modules/inventory')
   .service;
 
-const charStartCode = 97;
+const TYPE_HP = 0;
+const TYPE_MP = 1;
+const TYPE_BALL = 2;
 
+const items = [
+  {
+    type: TYPE_HP,
+    name: '草药',
+    desc: '补充少量血量',
+    price: 10,
+    buff: 10,
+  },
+  {
+    type: TYPE_HP,
+    name: '高级草药',
+    desc: '补充血量',
+    price: 50,
+    buff: 60,
+  },
+  {
+    type: TYPE_HP,
+    name: '辣条',
+    desc: '补充大量血量',
+    price: 100,
+    buff: 150,
+  },
+  {
+    type: TYPE_MP,
+    name: 'PP 回复剂',
+    desc: '回复少量技能点',
+    price: 10,
+    buff: 5,
+  },
+  {
+    type: TYPE_MP,
+    name: '维他柠檬',
+    desc: '回复大量技能点',
+    price: 30,
+    buff: 15,
+  },
+  {
+    type: TYPE_BALL,
+    name: '普通精灵球',
+    desc: '捕捉精灵必备道具',
+    price: 20,
+    buff: 20, // 基础概率
+  },
+  {
+    type: TYPE_BALL,
+    name: '高级精灵球',
+    desc: '更容易地捕捉精灵',
+    price: 60,
+    buff: 40, // 基础概率
+  }
+];
+
+const getItems = () => {
+  return items;
+};
+
+const getItemByIdx = (idx) => {
+  if (idx < 0 || idx >= items.length) {
+    return null;
+  }
+  return items[idx];
+};
+
+const charStartCode = 97;
 const _outputItem = (i, e) => {
   const c = String.fromCharCode(charStartCode + i);
   return `${c}. ${e.name} (${e.desc}) - ${e.price}Xb`;
 };
 
-const itemsInfo = shopModel.getItems().map((e, i) => {
+const itemsInfo = getItems().map((e, i) => {
   return _outputItem(i, e);
 }).join('\n');
 
@@ -54,7 +119,7 @@ const buyItem = async (ctx, args) => {
 
   const c = args[1];
   const idx = c.charCodeAt(0) - charStartCode;
-  const item = shopModel.getItemByIdx(idx);
+  const item = getItemByIdx(idx);
 
   if (item === null) {
     return await itemNotFoundError(ctx);
