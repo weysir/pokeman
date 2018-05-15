@@ -18,7 +18,7 @@ const handler = async (ctx, args) => {
       name: curUser.name,
       user_id: curUser.id,
       team_id: curUser.team_id,
-      gender: 'male',
+      gender: '未知',
       change: 100,
     });
   }

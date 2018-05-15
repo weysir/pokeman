@@ -29,13 +29,15 @@ const repository = {
       });
   },
 
-  updateById: async (ctx, id) => {
-    return await repository.collection(ctx)
+  updateById: async (ctx, id, m) => {
+    await repository.collection(ctx)
       .updateOne({
         _id: id
       }, {
         $set: m
       });
+
+    return await repository.getById(ctx, id);
   },
 
   getByUid: async (ctx, uId) => {
@@ -56,23 +58,34 @@ const repository = {
 // 逻辑层
 // 脏活层，处理用户消息和展示炫酷的东西
 const service = {
-  info: async ctx => {
-
-    const currentMessage = ctx.currentMessage;
+  getCurrentPlayer: async ctx => {
     const currentUser = ctx.currentUser;
 
     const info = await repository.getByUid(ctx, currentUser.id);
 
     if (!info) {
       await error.playerNotFound(ctx);
+      return null;
+    }
+
+    return info;
+  },
+
+  info: async ctx => {
+
+    const curPlayer = await service.getCurrentPlayer(ctx);
+
+    if (!curPlayer) {
       return;
     }
 
+    const currentMessage = ctx.currentMessage;
+
     const text = [
         `玩家信息`,
-        `- 玩家名: ${info.name}`,
-        `- 性别: ${info.gender}`,
-        `- 钱包余额：${info.change}`
+        `- 玩家名: ${curPlayer.name}`,
+        `- 性别: ${curPlayer.gender}`,
+        `- 钱包余额：${curPlayer.change}`
       ]
       .join('\n');
     const respMessage = rtm
@@ -82,7 +95,65 @@ const service = {
     await ctx.rtm.send(respMessage);
   },
 
-  listByTeam: async (ctx, team) => {
+  setGender: async (ctx, gender) => {
+
+    let curPlayer = await service.getCurrentPlayer(ctx);
+
+    if (!curPlayer) {
+      return;
+    }
+
+    if (gender !== '男' && gender !== '女') {
+      await error.invalidPlayerGender(ctx);
+      return;
+    }
+
+    curPlayer = await repository.updateById(ctx, curPlayer._id, {
+      gender
+    });
+
+    const text = [
+        `修改玩家性别为: \`${gender}\``,
+        `玩家信息`,
+        `- 玩家名: ${curPlayer.name}`,
+        `- 性别: ${curPlayer.gender}`,
+        `- 钱包余额：${curPlayer.change}`
+      ]
+      .join('\n');
+    const respMessage = rtm
+      .message
+      .refer(ctx.currentMessage, text);
+
+    await ctx.rtm.send(respMessage);
+  },
+
+  rename: async (ctx, name) => {
+    let curPlayer = await service.getCurrentPlayer(ctx);
+
+    if (!curPlayer) {
+      return;
+    }
+
+    curPlayer = await repository.updateById(ctx, curPlayer._id, {
+      name
+    });
+
+    const text = [
+        `修改玩家名为: \`${name}\``,
+        `玩家信息`,
+        `- 玩家名: ${curPlayer.name}`,
+        `- 性别: ${curPlayer.gender}`,
+        `- 钱包余额：${curPlayer.change}`
+      ]
+      .join('\n');
+    const respMessage = rtm
+      .message
+      .refer(ctx.currentMessage, text);
+
+    await ctx.rtm.send(respMessage);
+  },
+
+  list: async ctx => {
     let players = await repository.listByTeamId(ctx, team.id);
 
     return players;
@@ -97,9 +168,44 @@ const handler = async (ctx, args) => {
     return;
   }
 
+  // 改名
+  const rename = async (ctx, args) => {
+    if (args.length !== 2) {
+      await error.invalidCommand(ctx);
+      return;
+    }
+    const name = args[1].trim();
+    if (name.length === 0) {
+      await error.invalidPlayerName(ctx);
+      return;
+    }
+    await service.rename(ctx, name);
+  };
+
+  // 改变性别
+  const setGender = async (ctx, args) => {
+    if (args.length !== 2) {
+      await error.invalidCommand(ctx);
+      return;
+    }
+    const gender = args[1].trim();
+    if (gender.length === 0) {
+      await error.invalidPlayerName(ctx);
+      return;
+    }
+    await service.setGender(ctx, gender);
+  };
+
   switch (args[0]) {
     case 'info':
       await service.info(ctx);
+      break;
+    case 'rename':
+      await rename(ctx, args);
+      break;
+    case 'set-gender':
+      await setGender(ctx, args);
+      break;
   }
 };
 
