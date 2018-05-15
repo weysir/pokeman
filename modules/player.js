@@ -2,7 +2,9 @@ const rtm = require('bearychat')
   .rtm;
 const ObjectID = require('mongodb')
   .ObjectID;
+const error = require('./error');
 
+// 持久数据层
 const repository = {
   collection: ctx => {
     return ctx.db.collection("players");
@@ -51,26 +53,37 @@ const repository = {
   }
 };
 
+// 逻辑层
+// 脏活层，处理用户消息和展示炫酷的东西
 const service = {
-  getByUser: async (ctx, user) => {
+  info: async ctx => {
 
-    let player = await repository.getByUid(ctx, user.id);
+    const currentMessage = ctx.currentMessage;
+    const currentUser = ctx.currentUser;
 
-    if (!player) {
-      player = await repository.create(ctx, {
-        name: user.name,
-        user_id: user.id,
-        team_id: user.team_id,
-        gender: 'male',
-        change: 100,
-      });
+    const info = await repository.getByUid(ctx, currentUser.id);
+
+    if (!info) {
+      await error.playerNotFound(ctx);
+      return;
     }
 
-    return player;
+    const text = [
+        `玩家信息`,
+        `- 玩家名: ${info.name}`,
+        `- 性别: ${info.gender}`,
+        `- 钱包余额：${info.change}`
+      ]
+      .join('\n');
+    const respMessage = rtm
+      .message
+      .refer(currentMessage, text);
+
+    await ctx.rtm.send(respMessage);
   },
 
   listByTeam: async (ctx, team) => {
-    let players = await repository.listByTeamId(team.id);
+    let players = await repository.listByTeamId(ctx, team.id);
 
     return players;
   }
@@ -78,31 +91,15 @@ const service = {
 
 const handler = async (ctx, args) => {
   const currentMessage = ctx.currentMessage;
-  const currentUser = ctx.currentUser;
 
   if (args.length === 0) {
-    // TODO 统一返回未知命令方法
-
-    const respMessage = rtm
-      .message
-      .refer(currentMessage, 'Unknown command');
-
-    return await ctx.rtm.send(respMessage);
+    await error.invalidCommand(ctx);
+    return;
   }
 
   switch (args[0]) {
     case 'info':
-      const info = await service.getByUser(ctx, currentUser);
-      const text =
-            [`- 玩家名: ${info.name}`,
-             `- 性别: ${info.gender}`,
-             `- 钱包余额：${info.change}`]
-            .join('\n');
-      const respMessage = rtm
-        .message
-        .refer(currentMessage, text);
-
-      return await ctx.rtm.send(respMessage);
+      await service.info(ctx);
   }
 };
 
