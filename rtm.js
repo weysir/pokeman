@@ -26,10 +26,9 @@ const newDefaultMessageHandler = async data => {
 const mentionRe = new RegExp('@<=(=[A-Za-z0-9]+)=> ');
 
 module.exports = class RTMClient {
-  constructor(currentUser, token) {
+  constructor(token) {
     this.callId = 0;
     this.token = token;
-    this.currentUser = currentUser;
     this.ws = null;
   }
 

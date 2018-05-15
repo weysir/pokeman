@@ -77,17 +77,17 @@ const rtmHandler = ctx => {
       return;
     }
 
-    if (rtm.message.isFromUser(message, ctx.currentUser)) {
+    if (rtm.message.isFromUser(message, ctx.currentHubot)) {
       return;
     }
 
     if (!rtm.message.isP2P(message) &&
-          !ctx.rtm.isMentionMe(message.text, ctx.currentUser)) {
+        !ctx.rtm.isMentionMe(message.text, ctx.currentHubot)) {
       return;
     }
 
     const args = parseArgs(ctx, message);
-    const command = args[0]
+    const command = args[0];
     const commandHandler = getCommandHandler(command);
     let rv = execCommand(ctx, commandHandler, args);
 
@@ -114,15 +114,11 @@ const main = async () => {
     client,
     db
   } = await setupDB();
-
+  
   try {
-    const currentUser = await fetchCurrentUser();
-    const rtmClient = new RTMClient(currentUser, config.bearychat.token);
-
-    const ctx = new Context();
-    ctx.db = db;
-    ctx.currentUser = currentUser;
-    ctx.rtm = rtmClient;
+    const rtmClient = new RTMClient(config.bearychat.token);
+    const currentHubot = await fetchCurrentUser();
+    const ctx = new Context(db, currentHubot, rtmClient);
 
     rtmClient.start(rtmHandler(ctx));
   } finally {
