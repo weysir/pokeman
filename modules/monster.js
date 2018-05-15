@@ -19,6 +19,9 @@ const specieses = {
 };
 
 const service = {
+  getSpecieseById: id => {
+    return specieses[id];
+  },
   random: async ctx => {
     const id = ObjectID();
 

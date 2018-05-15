@@ -33,6 +33,18 @@ module.exports = {
     const text = '无效的商品序号';
     await respondText(ctx, text);
   },
+  packItemNotFound: async ctx => {
+    const text = '无效的物品序号';
+    await respondText(ctx, text);
+  },
+  placeItemNotFound: async ctx => {
+    const text = '无效的草地序号';
+    await respondText(ctx, text);
+  },
+  canNotUseNow: async (ctx, name) => {
+    const text = `现在不能使用 ${name}`;
+    await respondText(ctx, text);
+  },
   invalidCommand: async ctx => {
     const text = '命令错误';
 
