@@ -57,5 +57,6 @@ module.exports = async function generate(
     default:
   }
 
-  return canvas.jpegStream({ progressive: true }).pipe(fs.createWriteStream(`debug-${command}.jpg`));
+  // return canvas.jpegStream().pipe(fs.createWriteStream(`debug-${command}.jpg`));
+  return new Promise(resolve => canvas.toDataURL('image/jpeg', { progressive: true }, (_, base64) => resolve(base64)));
 };
