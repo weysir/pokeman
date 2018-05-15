@@ -1,9 +1,9 @@
-const { unknownCommand } = require('./common');
-const shopService = require('../modules/shop')
+const error = require('./error');
+const shopService = require('./shop')
   .service;
-const playerRepository = require('../modules/player')
+const playerRepository = require('./player')
   .repository;
-const inventoryService = require('../modules/inventory')
+const inventoryService = require('./inventory')
   .service;
 
 const charStartCode = 97;
@@ -21,10 +21,14 @@ const handler = async (ctx, args) => {
     return await unknownCommand(ctx);
   }
   const currentUser = ctx.currentUser;
+  const player = await playerRepository.getByUid(ctx, currentUser.id);
+  if (!player) {
+    return await error.playerNotFound(ctx);
+  }
 
   let inventories = await inventoryService.listByUser(ctx, currentUser);
 
-  ctx.send(`@<=${currentUser.id}=> 的背包:\n${_outputInventories(inventories)}`);
+  ctx.send(`${player.name} 的背包:\n${_outputInventories(inventories)}`);
 };
 
 module.exports = {

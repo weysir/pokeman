@@ -1,6 +1,6 @@
 const rtm = require('bearychat')
   .rtm;
-const { unknownCommand } = require('./common');
+const error = require('./error');
 
 const helpInfo = `- help: 帮助信息
 - init: 创建角色
@@ -15,7 +15,7 @@ const helpInfo = `- help: 帮助信息
 
 const handler = async (ctx, args) => {
   if (args.length > 0) {
-    return await unknownCommand(ctx);
+    return await error.invalidCommand(ctx);
   }
 
   const currentMessage = ctx.currentMessage;
