@@ -1,13 +1,13 @@
 const rtm = require('bearychat')
   .rtm;
-const { unknownCommand } = require('./common');
-const playerRepository = require('../modules/player')
+const error = require('./error');
+const playerRepository = require('./player')
   .repository;
-const playerRepostiory = require('../modules/player')
+const playerRepostiory = require('./player')
   .repository;
-const shopRepository = require('../modules/shop')
+const shopRepository = require('./shop')
   .repository;
-const inventoryService = require('../modules/inventory')
+const inventoryService = require('./inventory')
   .service;
 
 const TYPE_HP = 0;
@@ -90,18 +90,10 @@ const itemsInfo = getItems().map((e, i) => {
   return _outputItem(i, e);
 }).join('\n');
 
-const itemNotFoundError = async (ctx) => {
-  return await ctx.send('Item not found');
-};
-
-const playerNotFoundError = async (ctx) => {
-  return await ctx.send('Player not found');
-};
-
 // shop list
 const listItems = async (ctx, args) => {
   if (args.length > 1) {
-    return await unknownCommand(ctx);
+    return await error.invalidCommand(ctx);
   }
 
   return await ctx.send(itemsInfo);
@@ -110,14 +102,14 @@ const listItems = async (ctx, args) => {
 // shop buy [z]
 const buyItem = async (ctx, args) => {
   if (args.length !== 2) {
-    return await unknownCommand(ctx);
+    return await error.invalidCommand(ctx);
   }
 
   const currentUser = ctx.currentUser;
 
   const player = await playerRepository.getByUid(ctx, currentUser.id);
   if (!player) {
-    return await playerNotFoundError(ctx);
+    return await error.playerNotFound(ctx);
   }
 
   const c = args[1];
@@ -125,7 +117,7 @@ const buyItem = async (ctx, args) => {
   const item = getItemByIdx(idx);
 
   if (item === null) {
-    return await itemNotFoundError(ctx);
+    return await error.itemNotFoundError(ctx);
   }
 
   if (player.change < item.price) {
@@ -147,7 +139,7 @@ const handler = async (ctx, args) => {
     case 'buy':
       return await buyItem(ctx, args);
     default:
-      return await unknownCommand(ctx);
+      return await error.invalidCommand(ctx);
   }
 };
 
