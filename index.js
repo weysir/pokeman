@@ -112,7 +112,7 @@ const main = async () => {
     const ctx = new Context(db, currentHubot, rtmClient);
 
     rtmClient.start(rtmHandler(ctx));
-  } finally {
+  } catch (e) {
     client.close();
   }
 };

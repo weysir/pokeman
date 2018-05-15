@@ -57,10 +57,12 @@ const service = {
     let player = await repository.getByUid(ctx, user.id);
 
     if (!player) {
-      player = await repository.create({
+      player = await repository.create(ctx, {
         name: user.name,
         user_id: user.id,
         team_id: user.team_id,
+        gender: 'male',
+        change: 100,
       });
     }
 
@@ -91,9 +93,14 @@ const handler = async (ctx, args) => {
   switch (args[0]) {
     case 'info':
       const info = await service.getByUser(ctx, currentUser);
+      const text =
+            [`- 玩家名: ${info.name}`,
+             `- 性别: ${info.gender}`,
+             `- 钱包余额：${info.change}`]
+            .join('\n');
       const respMessage = rtm
         .message
-        .refer(currentMessage, info);
+        .refer(currentMessage, text);
 
       return await ctx.rtm.send(respMessage);
   }
