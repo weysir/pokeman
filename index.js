@@ -6,6 +6,13 @@ const rtm = require('bearychat').rtm;
 const Context = require('./context');
 const RTMClient = require('./rtm');
 
+const help = require('./modules/help');
+const init = require('./modules/init');
+const info = require('./modules/info');
+const shop = require('./modules/shop');
+const monster = require('./modules/monster');
+const go = require('./modules/go');
+const attack = require('./modules/attack');
 const player = require('./modules/player');
 
 const setupDB = async () => {
@@ -15,10 +22,52 @@ const setupDB = async () => {
   const db = client.db(config.database.name);
 
   return {
-    client,
-    db
+    client, db
   };
 };
+
+const getCommandHandler = command => {
+  switch (command) {
+    case 'help':
+      return help.handler;
+    case 'init':
+      return init.handler;
+    case 'info':
+      return info.handler;
+    case 'monster':
+      return monster.handler;
+    case 'shop':
+      return shop.handler;
+    case 'go':
+      return go.handler;
+    case 'attack':
+      return attack.handler;
+    default:
+      return null;
+  }
+};
+
+const parseArgs = (ctx, message) => {
+  const text = message.text;
+  const args = text.trim().split(' ');
+
+  if (ctx.rtm.isMentionMe(message.text, ctx.currentUser)) {
+    args.shift();
+  }
+
+  return args;
+};
+
+const execCommand = (ctx, commandHandler, args) => {
+  if (commandHandler !== null) {
+    return commandHandler(ctx, args);
+  }
+  return null;
+}
+
+const wrapWithMention = (message, returnText) => {
+  return `@<=${message.uid}=>\n${returnText}`;
+}
 
 const rtmHandler = ctx => {
   return async data => {
@@ -32,17 +81,22 @@ const rtmHandler = ctx => {
       return;
     }
 
-    if (ctx.rtm.isMentionMe(message.text, ctx.currentUser)) {
-
-      // TODO parse command
-
-      const respMessage = rtm
-        .message
-        .refer(message,
-          `:ok_hand:`);
-
-      ctx.rtm.send(respMessage);
+    if (!rtm.message.isP2P(message) &&
+          !ctx.rtm.isMentionMe(message.text, ctx.currentUser)) {
+      return;
     }
+
+    const args = parseArgs(ctx, message);
+    const command = args[0]
+    const commandHandler = getCommandHandler(command);
+    let rv = execCommand(ctx, commandHandler, args);
+
+    if (rv === '' || rv === null) {
+      rv = '命令错误';
+    }
+    const response = wrapWithMention(message, rv);
+    const respMessage = rtm.message.reply(message, response);
+    ctx.rtm.send(respMessage);
   };
 };
 
