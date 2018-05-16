@@ -14,6 +14,7 @@ module.exports = mapToPaths({
   [constants.COMMAND_MONSTER_CATCH_SAT]: 'bg-catch-sat.jpeg',
   [constants.COMMAND_MONSTER_PK_WIN]: 'bg-pkwin.jpeg',
   [constants.COMMAND_MONSTER_PK_FAIL]: 'bg-pkfail.jpeg',
+  [constants.COMMAND_MONSTER_OPTIONS]: 'bg-catch-options.jpg',
   [constants.MONSTER_PIKACHU]: 'monster-pikachu.png',
   [constants.MONSTER_PSYDUCK]: 'monster-psyduck.png',
   [constants.MONSTER_DOGE]: 'monster-goge.png',
