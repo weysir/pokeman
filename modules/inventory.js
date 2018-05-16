@@ -84,6 +84,24 @@ const service = {
     return inventories;
   },
 
+  getItemByUserIdx: async (ctx, user, idx) => {
+    let inventories = await repository.getMultiByUid(ctx, user.id);
+    inventories = inventories.filter((e) => {
+      return e.amount > 0;
+    });
+    return inventories[idx];
+  },
+
+  useItem: async (ctx, user, idx) => {
+    return await repository.collection(ctx)
+      .updateOne({
+        user_id: user.id,
+        team_id: user.team_id,
+        item_idx: idx,
+      }, {
+        $inc: { amount: -1 },
+      });
+  },
 };
 
 module.exports = {

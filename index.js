@@ -14,6 +14,7 @@ const monster = require('./modules/monster');
 const go = require('./modules/go');
 const attack = require('./modules/attack');
 const player = require('./modules/player');
+const playState = require('./modules/playState');
 
 const setupDB = async () => {
   const client = await MongoClient.connect(config.database.uri, {
@@ -26,7 +27,13 @@ const setupDB = async () => {
   };
 };
 
-const getCommandHandler = command => {
+const getCommandHandler = async (ctx, command) => {
+  const currentUser = ctx.currentUser;
+  const state = await playState.service.getByUser(ctx, currentUser);
+  if (state && !playState.service.isInNormal(state)) {
+    return playState.handler;
+  }
+
   switch (command) {
     case 'help':
       return help.handler;
@@ -61,9 +68,16 @@ const parseArgs = (ctx, message) => {
 };
 
 const execCommand = async (ctx, commandHandler, args) => {
+  let argv;
+  if (commandHandler === playState.handler) {
+    argv = args;
+  } else {
+    argv = args.splice(1);
+  }
+
   if (commandHandler !== null) {
     // NOTE 去掉主命令(eg: player / shop)
-    await commandHandler(ctx, args.splice(1));
+    await commandHandler(ctx, argv);
   }
 };
 
@@ -86,9 +100,10 @@ const rtmHandler = ctx => {
 
     const args = parseArgs(ctx, message);
     const command = args[0];
-    const commandHandler = getCommandHandler(command);
+    newCtx = await ctx.fromMessage(message);
+    const commandHandler = await getCommandHandler(newCtx, command);
 
-    await execCommand(await ctx.fromMessage(message),
+    await execCommand(newCtx,
                       commandHandler,
                       args);
   };

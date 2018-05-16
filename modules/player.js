@@ -189,7 +189,17 @@ const service = {
       .refer(ctx.currentMessage, text);
 
     await ctx.rtm.send(respMessage);
-  }
+  },
+
+  setMonsterHP: async (ctx, player, monsterIdx, newHp) => {
+    return await repository.collection(ctx)
+      .updateOne({
+        _id: player._id,
+      }, {
+        $set: {[`monsters.${monsterIdx}.blood`]: newHp },
+      });
+  },
+
 };
 
 const handler = async (ctx, args) => {

@@ -3,10 +3,6 @@ const rtm = require('bearychat')
 const error = require('./error');
 const playerRepository = require('./player')
   .repository;
-const playerRepostiory = require('./player')
-  .repository;
-const shopRepository = require('./shop')
-  .repository;
 const inventoryService = require('./inventory')
   .service;
 
@@ -86,7 +82,7 @@ const _outputItem = (i, e) => {
   return `${c}. ${e.name} (${e.desc}) - ${e.price}Xb`;
 };
 
-const itemsInfo = getItems().map((e, i) => {
+const itemsInfo = service.getItems().map((e, i) => {
   return _outputItem(i, e);
 }).join('\n');
 
@@ -117,11 +113,11 @@ const buyItem = async (ctx, args) => {
   const item = getItemByIdx(idx);
 
   if (item === null) {
-    return await error.itemNotFoundError(ctx);
+    return await error.itemNotFound(ctx);
   }
 
   if (player.change < item.price) {
-    return ctx.send(`@<=${currentUser.id}=> 零钱不够噢`)
+    return ctx.send(`${player.name} 零钱不够噢`)
   }
 
   // TODO: player.change - item.price
@@ -144,6 +140,9 @@ const handler = async (ctx, args) => {
 };
 
 module.exports = {
+  TYPE_HP,
+  TYPE_MP,
+  TYPE_BALL,
   service,
   handler,
 };
