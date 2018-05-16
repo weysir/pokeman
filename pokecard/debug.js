@@ -3,7 +3,7 @@ const generate = require('./generatorRegistry');
 const constants = require('./constants');
 
 (async () => {
-  const command = constants.COMMAND_MONSTER_CATCH;
+  const command = constants.COMMAND_MONSTER_CATCH_WATER;
   const result = await generate(
     command,
     [{ name: 'pikachu', type: 'MONSTER_PIKACHU', blood: 100, exp: 100 }, { name: 'pikachu', type: 'MONSTER_PIKACHU', blood: 100, exp: 100 }],
