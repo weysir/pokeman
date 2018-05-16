@@ -11,6 +11,7 @@ async function putMonsterImage(ctx, index, monsterUrl) {
   const offsetTop = 23;
   const imageX = calcImageOffsetX(index);
 
+  console.log(monsterUrl);
   const image = await loadImage(monsterUrl);
   ctx.drawImage(image, imageX, offsetTop, 84, 164);
 }

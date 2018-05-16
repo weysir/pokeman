@@ -226,7 +226,7 @@ const selectMonster = async (ctx, state, args) => {
       const x = String.fromCharCode(i + charStartCode);
       return `${x}. ${e.name}`;
     });
-    return ctx.send(`决定就是你的 ${m.name}! \n请选择技能 \n ${skillList.join('\n')}`);
+    return ctx.send(`决定就是你的 ${m.name}! \n请选择技能 \n ${skillList.join('\n ')}`);
   }
 
 };
@@ -240,7 +240,7 @@ const fightLoop = async (ctx, state, args) => {
       const x = String.fromCharCode(i + charStartCode);
       return `${x}. ${e.name}`;
     });
-    return ctx.send(`无效操作，请选择技能 \n ${skillList.join('\n')}`);
+    return ctx.send(`无效操作，请选择技能 \n ${skillList.join('\n ')}`);
   }
 
   const c = args[0];
@@ -252,7 +252,7 @@ const fightLoop = async (ctx, state, args) => {
     return `${x}. ${e.name}`;
   });
   if (!skill) {
-    return ctx.send(`无效操作，请选择技能 \n ${skillList.join('\n')}`);
+    return ctx.send(`无效操作，请选择技能 \n ${skillList.join('\n ')}`);
   }
 
   const enemySkills = getSkills(state.data.enemy);
@@ -324,7 +324,7 @@ const fightLoop = async (ctx, state, args) => {
   setTimeout(() => {
     ctx.send(`我方 ${curMonster.name} 剩余血量 ${mLeft}\n` +
       `敌方 ${state.data.enemy.name} 剩余血量 ${eLeft}\n` +
-      `请选择技能:\n ${skillList.join('\n')}`);
+      `请选择技能:\n ${skillList.join('\n ')}`);
   }, 1000);
 };
 

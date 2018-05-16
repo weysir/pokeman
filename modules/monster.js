@@ -109,6 +109,7 @@ const service = {
     }
 
     const monsters = curPlayer.monsters;
+
     const card = await pokecard(pokecardConstants.COMMAND_MONSTER_LIST,
       monsters, [curPlayer], []);
 
