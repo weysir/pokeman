@@ -1,4 +1,7 @@
-const { createCanvas, loadImage } = require('canvas');
+const {
+  createCanvas,
+  loadImage
+} = require('canvas');
 const constants = require('./constants');
 const imageUrlRegistry = require('./imageUrlRegistry');
 const generateMonsterListImage = require('./generators/monsterList');
@@ -29,7 +32,8 @@ async function putBackgroundImage(ctx, bgUrl) {
 // }>>
 //
 // pkResults: Array<boolean>
-module.exports = async function generate(command, monsters = [], players = [], pkResults = []) {
+module.exports = async function generate(command, monsters = [], players = [],
+  pkResults = []) {
   const canvas = createCanvas(500, 250);
   const ctx = canvas.getContext('2d');
   await putBackgroundImage(ctx, imageUrlRegistry[command]);
@@ -52,7 +56,11 @@ module.exports = async function generate(command, monsters = [], players = [], p
   }
 
   return {
-    getBase64: () => new Promise(resolve => canvas.toDataURL('image/jpeg', { progressive: true }, (_, base64) => resolve(base64))),
+    getBase64: () => new Promise(resolve => canvas.toDataURL('image/jpeg', {
+      progressive: true,
+      quality: 50,
+      bufsize: 4096 * 2
+    }, (_, base64) => resolve(base64))),
     getStream: () => canvas.jpegStream()
   };
 };

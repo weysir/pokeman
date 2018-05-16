@@ -4,9 +4,12 @@ const ObjectID = require('mongodb')
   .ObjectID;
 const player = require('./player');
 const error = require('./error');
+const pokecard = require('../pokecard/generatorRegistry');
+const pokecardConstants = require('../pokecard/constants');
 
 const specieses = {
   MONSTER_PIKACHU: {
+    type: pokecardConstants.MONSTER_PIKACHU,
     name: '皮卡丘',
     blood: 200,
     skills: {
@@ -21,6 +24,7 @@ const specieses = {
     }
   },
   MONSTER_PSYDUCK: {
+    type: pokecardConstants.MONSTER_PSYDUCK,
     name: '可达鸭',
     blood: 100,
     skills: {
@@ -35,6 +39,7 @@ const specieses = {
     }
   },
   MONSTER_DOGE: {
+    type: pokecardConstants.MONSTER_DOGE,
     name: '神烦狗',
     blood: 200,
     skills: {
@@ -49,6 +54,7 @@ const specieses = {
     }
   },
   SPECIAL_BEAR: {
+    type: pokecardConstants.SPECIAL_BEAR,
     name: '一熊',
     blood: 666,
     skills: {
@@ -101,21 +107,17 @@ const service = {
       return;
     }
 
-    const text = [
-      `玩家精灵列表`,
-      ...curPlayer.monsters
-      .map(m => {
+    const monsters = curPlayer.monsters.map(
+      m => {
         const species = specieses[m.species];
+        m.type = species.type;
 
-        return `- ${m.name}(${species.name}) [血量 \`${m.blood}\`] [经验 \`${m.exp}\`]`;
-      })
-    ].join('\n');
+        return m;
+      });
 
-    const respMessage = rtm
-      .message
-      .refer(ctx.currentMessage, text);
+    const card = await pokecard(pokecardConstants.COMMAND_MONSTER_LIST, monsters, [curPlayer], []);
 
-    await ctx.rtm.send(respMessage);
+    await ctx.sendCard(card);
   }
 };
 

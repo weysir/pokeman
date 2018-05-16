@@ -10,7 +10,7 @@ const textLineGap = 18;
 const avatarSize = 80;
 const avatarStartX = canvasWidth - (avatarSize + 25);
 
-const rowInfoItems = ['name', 'money', 'gender'];
+const rowInfoItems = ['name', 'change', 'gender'];
 
 const calcTextOffsetY = (baseHeight, index) => startY + baseHeight * index + textLineGap * index;
 
@@ -37,7 +37,7 @@ async function putPlayerAvatarImage(ctx, player) {
 // player: Object<{
 //   name: string,
 //   avatarUrl: string,
-//   money: string,
+//   change: string,
 //   gender: string,
 // }>
 module.exports = async function generate(ctx, player) {

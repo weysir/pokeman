@@ -5,6 +5,8 @@ const ObjectID = require('mongodb')
   .ObjectID;
 const config = require('../config');
 const error = require('./error');
+const pokecard = require('../pokecard/generatorRegistry');
+const pokecardConstants = require('../pokecard/constants');
 
 // 持久数据层
 const repository = {
@@ -32,7 +34,7 @@ const repository = {
   },
 
   updateById: async (ctx, id, m) => {
-    return await repository.collection(ctx)
+    await repository.collection(ctx)
       .updateOne({
         _id: id
       }, {
@@ -82,20 +84,11 @@ const service = {
       return;
     }
 
-    const currentMessage = ctx.currentMessage;
+    curPlayer.avatarUrl = 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/98/International_Pok%C3%A9mon_logo.svg/1200px-International_Pok%C3%A9mon_logo.svg.png';
 
-    const text = [
-        `玩家信息`,
-        `- 玩家名: ${curPlayer.name}`,
-        `- 性别: ${curPlayer.gender}`,
-        `- 钱包余额：${curPlayer.change}`
-      ]
-      .join('\n');
-    const respMessage = rtm
-      .message
-      .refer(currentMessage, text);
+    const card = await pokecard(pokecardConstants.COMMAND_PLAYER_INIT, [], [curPlayer], []);
 
-    await ctx.rtm.send(respMessage);
+    await ctx.sendCard(card);
   },
 
   setGender: async (ctx, gender) => {
@@ -115,19 +108,11 @@ const service = {
       gender
     });
 
-    const text = [
-        `修改玩家性别为: \`${gender}\``,
-        `玩家信息`,
-        `- 玩家名: ${curPlayer.name}`,
-        `- 性别: ${curPlayer.gender}`,
-        `- 钱包余额：${curPlayer.change}`
-      ]
-      .join('\n');
-    const respMessage = rtm
-      .message
-      .refer(ctx.currentMessage, text);
+    curPlayer.avatarUrl = 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/98/International_Pok%C3%A9mon_logo.svg/1200px-International_Pok%C3%A9mon_logo.svg.png';
 
-    await ctx.rtm.send(respMessage);
+    const card = await pokecard(pokecardConstants.COMMAND_PLAYER_INIT, [], [curPlayer], []);
+
+    await ctx.sendCard(card);
   },
 
   rename: async (ctx, name) => {
@@ -141,19 +126,12 @@ const service = {
       name
     });
 
-    const text = [
-        `修改玩家名为: \`${name}\``,
-        `玩家信息`,
-        `- 玩家名: ${curPlayer.name}`,
-        `- 性别: ${curPlayer.gender}`,
-        `- 钱包余额：${curPlayer.change}`
-      ]
-      .join('\n');
-    const respMessage = rtm
-      .message
-      .refer(ctx.currentMessage, text);
 
-    await ctx.rtm.send(respMessage);
+    curPlayer.avatarUrl = 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/98/International_Pok%C3%A9mon_logo.svg/1200px-International_Pok%C3%A9mon_logo.svg.png';
+
+    const card = await pokecard(pokecardConstants.COMMAND_PLAYER_INIT, [], [curPlayer], []);
+
+    await ctx.sendCard(card);
   },
 
   list: async ctx => {
