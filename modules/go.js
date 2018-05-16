@@ -1,7 +1,6 @@
 const error = require('./error')
 const player = require('./player');
-const playStateService = require('./playState')
-  .service;
+const playState = require('./playState');
 const monsterService = require('./monster')
   .service;
 
@@ -51,7 +50,7 @@ const listPlaces = async (ctx, args) => {
 };
 
 const getMaybeRandomMonster = async (ctx, args) => {
-  if (Math.random() * 100 % 2 === 0) {
+  if (Math.floor(Math.random() * 100) % 2 === 0) {
     return null;
   }
 
@@ -78,19 +77,13 @@ const goPlace = async (ctx, args) => {
   }
 
   const currentUser = ctx.currentUser;
-
-  playStateService.enterBattble(
-      ctx,
-      await playStateService.getByUser(ctx, currentUser),
-      {});
-
   const monster = await getMaybeRandomMonster(ctx, args);
 
-  if (monster === null) {
+  if (!monster) {
     return ctx.send(`在 ${place.name} 中没遇到精灵`);
   } else {
-    const state = playStateService.getByUser(ctx, currentUser);
-    playStateService.enterBattble(ctx, state, {enemy: monster, curMonster: null});
+    const state = await playState.service.getByUser(ctx, currentUser);
+    await playState.service.enterBattble(ctx, state, { enemy: monster, curMonster: null });
     const monsterList = selectableMonsters.map((m, i) => {
       const x = String.fromCharCode(i + charStartCode);
       return `${x}. ${m.name} (血量 \`${m.blood}\`)`

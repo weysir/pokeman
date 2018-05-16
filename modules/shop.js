@@ -110,7 +110,7 @@ const buyItem = async (ctx, args) => {
 
   const c = args[1];
   const idx = c.charCodeAt(0) - charStartCode;
-  const item = getItemByIdx(idx);
+  const item = service.getItemByIdx(idx);
 
   if (item === null) {
     return await error.itemNotFound(ctx);
@@ -121,7 +121,7 @@ const buyItem = async (ctx, args) => {
   }
 
   // TODO: player.change - item.price
-  await playerRepostiory.updateById(ctx, player._id, {change: player.change - item.price});
+  await playerRepository.updateById(ctx, player._id, {change: player.change - item.price});
   await inventoryService.addItemFoyUser(ctx, currentUser, idx);
 
   return ctx.send(`${player.name} 获得 ${item.name}x1，剩余 ${player.change - item.price} Xb`);
