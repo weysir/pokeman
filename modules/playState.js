@@ -1,9 +1,9 @@
 const ObjectID = require('mongodb')
   .ObjectID;
 const error = require('./error');
+const player = require('./player');
 const monsterService = require('./monster')
   .service;
-const player = require('./player');
 const shopService = require('./shop')
   .service;
 const inventoryService = require('./inventory')
@@ -89,8 +89,8 @@ const service = {
 
 const chooseMonsterForItem = async (ctx, args) => {
   const currentUser = ctx.currentUser;
-  const player = await player.repository.getByUid(ctx, currentUser.id);
-  if (!player) {
+  const curPlayer = await player.repository.getByUid(ctx, currentUser.id);
+  if (!curPlayer) {
     return await error.playerNotFound(ctx);
   }
 
@@ -98,12 +98,12 @@ const chooseMonsterForItem = async (ctx, args) => {
   const itemType = shopService.getItemByIdx(state.data.item_idx);
 
   const shouldChoose = () => {
-    const monsters = player.monsters.map((m, i) => {
+    const monsters = curPlayer.monsters.map((m, i) => {
       const species = monsterService.getSpecieseById(m.species);
       const x = String.fromCharCode(i + charStartCode);
       return `${x}. ${m.name} [血量 \`${m.blood}/${species.blood}\`]`;
     }).join('\n');
-    const x = String.fromCharCode(player.monsters.length + charStartCode);
+    const x = String.fromCharCode(curPlayer.monsters.length + charStartCode);
     const cancelText = `${x}. 取消`;
     ctx.send(`请选择使用 ${itemType.name} 的精灵\n${monsters}\n${cancelText}`);
   };
@@ -115,16 +115,16 @@ const chooseMonsterForItem = async (ctx, args) => {
   const c = args[0];
   const monsterIdx = c.charCodeAt(0) - charStartCode;
 
-  if (monsterIdx > player.monsters.length) {
+  if (monsterIdx > curPlayer.monsters.length) {
     return shouldChoose();
   }
 
-  if (monsterIdx === player.monsters.length) {
+  if (monsterIdx === curPlayer.monsters.length) {
     service.resetNormal(ctx, state);
     return ctx.send('取消选择');
   }
 
-  const m = player.monsters[monsterIdx];
+  const m = curPlayer.monsters[monsterIdx];
   if (!m) {
     return shouldChoose();
   }
@@ -133,11 +133,11 @@ const chooseMonsterForItem = async (ctx, args) => {
       monsterService.getSpecieseById(m.species).blood,
       (m.blood + itemType.buff));
 
-  await player.service.setMonsterHP(ctx, player, monsterIdx, newHp);
+  await player.service.setMonsterHP(ctx, curPlayer, monsterIdx, newHp);
   await inventoryService.useItem(ctx, currentUser, state.data.inventory_idx);
   await service.resetNormal(ctx, state);
 
-  return ctx.send(`对 ${player.monsters[monsterIdx].name} 使用 ${itemType.name}`);
+  return ctx.send(`对 ${curPlayer.monsters[monsterIdx].name} 使用 ${itemType.name}`);
 };
 
 const selectMonster = (ctx, state, args) => {
