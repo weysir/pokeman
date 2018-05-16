@@ -8,6 +8,8 @@
   "license": "MIT",
   "dependencies": {
     "bearychat": "^1.2.0",
+    "canvas": "^2.0.0-alpha.12",
+    "jimp": "^0.2.28",
     "mongodb": "^3.1.0-beta4",
     "ws": "^5.1.1"
   }
