@@ -6,14 +6,56 @@ const player = require('./player');
 const error = require('./error');
 
 const specieses = {
-  pikachu: {
+  MONSTER_PIKACHU: {
     name: '皮卡丘',
-    blood: 100,
+    blood: 200,
     skills: {
+      coquetry: {
+        name: '撒娇',
+        atk: 50,
+      },
       thunderbolt: {
         name: '十万伏特',
-        atk: 10
-      }
+        atk: 10,
+      },
+    }
+  },
+  MONSTER_PSYDUCK: {
+    name: '可达鸭',
+    blood: 100,
+    skills: {
+      flashlight: {
+        name: '闪光',
+        atk: 30,
+      },
+      hypnotism: {
+        name: '催眠',
+        atk: 80,
+      },
+    }
+  },
+  MONSTER_DOGE: {
+    name: '神烦狗',
+    blood: 200,
+    skills: {
+      eyeKilling : {
+        name: '眼神杀',
+        atk: 99,
+      },
+      hack: {
+        name: '40米大刀乱砍',
+        atk: 200,
+      },
+    }
+  },
+  SPECIAL_BEAR: {
+    name: '一熊',
+    blood: 666,
+    skills: {
+      invincibility: {
+        name: '无敌',
+        atk: 888,
+      },
     }
   }
 };
