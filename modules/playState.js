@@ -286,7 +286,7 @@ const fightLoop = async (ctx, state, args) => {
 
     curPlayer.change += getChange();
     curMonster.exp += getExp();
-    for (let i =0; i< curPlayer.monsters.length; ++i) {
+    for (let i = 0; i < curPlayer.monsters.length; ++i) {
 
       if (curPlayer.monsters[i]._id === curMonster._id) {
         curPlayer.monsters[i].exp = curMonster.exp;
@@ -305,16 +305,11 @@ const fightLoop = async (ctx, state, args) => {
   setTimeout(async () => {
     await ctx.send(`敌方 ${state.data.enemy.name} 使用了 ${enemySkill.name}`);
     if (mLeft <= 0) {
-      try {
-
-        service.resetNormal(ctx, state);
-        const card = await pokecard(pokecardConstants.COMMAND_MONSTER_PK_FAIL, [
-          curMonster, state.data.enemy
-        ], [curPlayer, curPlayer], [false, true]);
-        await ctx.sendCard(card, `输了QAQ`);
-      } catch(e) {
-        console.log(e);
-      }
+      service.resetNormal(ctx, state);
+      const card = await pokecard(pokecardConstants.COMMAND_MONSTER_PK_FAIL, [
+        curMonster, state.data.enemy
+      ], [curPlayer, curPlayer], [false, true]);
+      await ctx.sendCard(card, `输了QAQ`);
     }
   }, 500);
   if (mLeft <= 0) {
