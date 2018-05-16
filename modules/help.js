@@ -24,9 +24,6 @@ const helpInfo =
 草丛：
 - go list: 场地列表
 - go [ID]: 进入场地
-
-战斗：
-- attack [ID]: 攻击对方
 `;
 
 const handler = async (ctx, args) => {

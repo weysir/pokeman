@@ -100,8 +100,16 @@ const rtmHandler = ctx => {
 
     const args = parseArgs(ctx, message);
     const command = args[0];
-    newCtx = await ctx.fromMessage(message);
+    const newCtx = await ctx.fromMessage(message);
     const commandHandler = await getCommandHandler(newCtx, command);
+
+    const getOnlineUserCount = () => {
+      const min = Math.ceil(1000000);
+      const max = Math.floor(100000000);
+      return Math.floor(Math.random() * (max - min)) + min;
+    };
+    const currentOnlineUserCount = getOnlineUserCount();
+    await newCtx.send(`当前系统在线用户 ${currentOnlineUserCount}, 系统正在努力的响应你的命令`);
 
     await execCommand(newCtx,
                       commandHandler,
