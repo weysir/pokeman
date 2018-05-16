@@ -15,7 +15,7 @@ async function putBackgroundImage(ctx, bgUrl) {
   return ctx;
 }
 
-// command: COMMAND_MONSTER_LIST | COMMAND_PLAYER_INIT | COMMAND_MONSTER_CATCH | COMMAND_MONSTER_PK_WIN | COMMAND_MONSTER_PK_FAIL
+// command: COMMAND_MONSTER_LIST | COMMAND_PLAYER_INIT | COMMAND_MONSTER_CATCH_WATER | COMMAND_MONSTER_PK_WIN | COMMAND_MONSTER_PK_FAIL
 //
 // monsters: Array<Object<{
 //   name: string,
@@ -45,7 +45,9 @@ module.exports = async function generate(command, monsters = [], players = [],
     case constants.COMMAND_MONSTER_LIST:
       await generateMonsterListImage(ctx, monsters, players[0]);
       break;
-    case constants.COMMAND_MONSTER_CATCH:
+    case constants.COMMAND_MONSTER_CATCH_WATER:
+    case constants.COMMAND_MONSTER_CATCH_GRASS:
+    case constants.COMMAND_MONSTER_CATCH_SAT:
       await generateMonsterCatchImage(ctx, monsters[0]);
       break;
     case constants.COMMAND_MONSTER_PK_WIN:
