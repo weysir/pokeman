@@ -20,6 +20,7 @@ const handler = async (ctx, args) => {
     const m = await monster.service.random(ctx);
     curPlayer = await player.repository.create(ctx, {
       name: curUser.name,
+      avatar_url: 'https://bearychat.com/static/media/bearychat_logo_with_name.fec3107c.svg',
       user_id: curUser.id,
       team_id: curUser.team_id,
       gender: '未知',
@@ -27,10 +28,15 @@ const handler = async (ctx, args) => {
       monsters: [m],
     });
   }
-  curPlayer.avatarUrl = 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/98/International_Pok%C3%A9mon_logo.svg/1200px-International_Pok%C3%A9mon_logo.svg.png';
 
-  const card = await pokecard(pokecardConstants.COMMAND_PLAYER_INIT, [], [curPlayer], []);
+  if (curPlayer.monsters.every(m => m.blood === 0)) {
+    curPlayer.monsters.push(await monster.service.random(ctx));
+    await player.repository.updateById(ctx, curPlayer._id, curPlayer);
+  }
 
+  const card = await pokecard(pokecardConstants.COMMAND_PLAYER_INIT, [], [
+    curPlayer
+  ], []);
   await ctx.sendCard(card);
 };
 

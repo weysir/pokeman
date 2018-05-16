@@ -67,7 +67,7 @@ const useItem = async (ctx, args) => {
       await playStateService.getByUser(ctx, currentUser),
       {itemIdx: item.item_idx, inventoryIdx: idx});
 
-  ctx.send(`请选择使用 ${itemType.name} 的精灵\n${monsters}\n${cancelText}`);
+  await ctx.send(`请选择使用 ${itemType.name} 的精灵\n${monsters}\n${cancelText}`);
   // player.enterChoose
 };
 

@@ -63,7 +63,7 @@ module.exports = class Context {
     return await this.rtm.send(msg);
   }
 
-  async sendCard(card) {
+  async sendCard(card, text) {
     const sendMessage = async (vchannelId, text, imageUrl) => {
       const payload = {
         token: config.bearychat.token,
@@ -85,8 +85,7 @@ module.exports = class Context {
 
     const imageUrl = await card.getBase64();
     const vchannelId = this.currentMessage.vchannel_id;
-    const text =
-      `${this.rtm.mention(this.currentUser)} ${this.currentMessage.text}`;
+    text = text || `${this.rtm.mention(this.currentUser)} ${this.currentMessage.text}`;
 
     await sendMessage(vchannelId, text, imageUrl);
   }

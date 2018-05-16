@@ -84,8 +84,6 @@ const service = {
       return;
     }
 
-    curPlayer.avatarUrl = 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/98/International_Pok%C3%A9mon_logo.svg/1200px-International_Pok%C3%A9mon_logo.svg.png';
-
     const card = await pokecard(pokecardConstants.COMMAND_PLAYER_INIT, [], [curPlayer], []);
 
     await ctx.sendCard(card);
@@ -108,8 +106,6 @@ const service = {
       gender
     });
 
-    curPlayer.avatarUrl = 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/98/International_Pok%C3%A9mon_logo.svg/1200px-International_Pok%C3%A9mon_logo.svg.png';
-
     const card = await pokecard(pokecardConstants.COMMAND_PLAYER_INIT, [], [curPlayer], []);
 
     await ctx.sendCard(card);
@@ -125,9 +121,6 @@ const service = {
     curPlayer = await repository.updateById(ctx, curPlayer._id, {
       name
     });
-
-
-    curPlayer.avatarUrl = 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/98/International_Pok%C3%A9mon_logo.svg/1200px-International_Pok%C3%A9mon_logo.svg.png';
 
     const card = await pokecard(pokecardConstants.COMMAND_PLAYER_INIT, [], [curPlayer], []);
 

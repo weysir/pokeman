@@ -7,11 +7,13 @@ const shopService = require('./shop')
   .service;
 const inventoryService = require('./inventory')
   .service;
+const pokecard = require('../pokecard/generatorRegistry');
+const pokecardConstants = require('../pokecard/constants');
 
 const charStartCode = 97;
 
 const STATE_NORMAL = 0;
-const STATE_IN_BATTLE= 1;
+const STATE_IN_BATTLE = 1;
 const STATE_CHOOSING_MONSTER_FOR_ITEM = 2;
 
 const repository = {
@@ -64,25 +66,41 @@ const service = {
     return state.state === STATE_NORMAL;
   },
 
-  chooseMonsterForItem: async (ctx, state, {itemIdx, inventoryIdx}) => {
+  chooseMonsterForItem: async (ctx, state, {
+    itemIdx,
+    inventoryIdx
+  }) => {
     if (state.state === STATE_NORMAL || state.state === STATE_IN_BATTLE) {
-      await repository.updateById(ctx, state._id,
-          {state: STATE_CHOOSING_MONSTER_FOR_ITEM,
-           data: { item_idx: itemIdx, inventory_idx: inventoryIdx }});
+      await repository.updateById(ctx, state._id, {
+        state: STATE_CHOOSING_MONSTER_FOR_ITEM,
+        data: {
+          item_idx: itemIdx,
+          inventory_idx: inventoryIdx
+        }
+      });
     }
   },
 
-  enterBattble: async (ctx, state, { enemy, curMonster }) => {
+  enterBattble: async (ctx, state, {
+    enemy,
+    curMonster
+  }) => {
     if (state.state === STATE_NORMAL) {
-      await repository.updateById(ctx, state._id,
-          {state: STATE_IN_BATTLE,
-           data: { enemy, curMonster } });
+      await repository.updateById(ctx, state._id, {
+        state: STATE_IN_BATTLE,
+        data: {
+          enemy,
+          curMonster
+        }
+      });
     }
   },
 
   changeMonster: async (ctx, state, idx) => {
     if (state.state === STATE_IN_BATTLE) {
-      await repository.updateById(ctx, state._id, { 'data.curMonster': idx });
+      await repository.updateById(ctx, state._id, {
+        'data.curMonster': idx
+      });
     }
   },
 
@@ -92,7 +110,9 @@ const service = {
         .updateOne({
           _id: state._id,
         }, {
-          '$inc': { 'data.enemy.blood': -hp }
+          '$inc': {
+            'data.enemy.blood': -hp
+          }
         });
     }
   },
@@ -102,12 +122,15 @@ const service = {
       const curPlayer = await player.service.getCurrentPlayer(ctx);
       const monster = curPlayer.monsters[state.data.curMonster];
       const newHP = Math.max(0, monster.blood - hp);
-      await player.service.setMonsterHP(ctx, curPlayer, state.data.curMonster, newHP);
+      await player.service.setMonsterHP(ctx, curPlayer, state.data.curMonster,
+        newHP);
     }
   },
 
   resetNormal: async (ctx, state) => {
-    await repository.updateById(ctx, state._id, {state: STATE_NORMAL});
+    await repository.updateById(ctx, state._id, {
+      state: STATE_NORMAL
+    });
   },
 
 };
@@ -124,10 +147,11 @@ const chooseMonsterForItem = async (ctx, args) => {
 
   const shouldChoose = () => {
     const monsters = curPlayer.monsters.map((m, i) => {
-      const species = monster.service.getSpecieseById(m.species);
-      const x = String.fromCharCode(i + charStartCode);
-      return `${x}. ${m.name} [血量 \`${m.blood}/${species.blood}\`]`;
-    }).join('\n');
+        const species = monster.service.getSpecieseById(m.species);
+        const x = String.fromCharCode(i + charStartCode);
+        return `${x}. ${m.name} [血量 \`${m.blood}/${species.blood}\`]`;
+      })
+      .join('\n');
     const x = String.fromCharCode(curPlayer.monsters.length + charStartCode);
     const cancelText = `${x}. 取消`;
     ctx.send(`请选择使用 ${itemType.name} 的精灵\n${monsters}\n${cancelText}`);
@@ -155,14 +179,16 @@ const chooseMonsterForItem = async (ctx, args) => {
   }
 
   const newHp = Math.min(
-      monster.service.getSpecieseById(m.species).blood,
-      (m.blood + itemType.buff));
+    monster.service.getSpecieseById(m.species)
+    .blood,
+    (m.blood + itemType.buff));
 
   await player.service.setMonsterHP(ctx, curPlayer, monsterIdx, newHp);
   await inventoryService.useItem(ctx, currentUser, state.data.inventory_idx);
   await service.resetNormal(ctx, state);
 
-  return ctx.send(`对 ${curPlayer.monsters[monsterIdx].name} 使用 ${itemType.name}`);
+  return ctx.send(
+    `对 ${curPlayer.monsters[monsterIdx].name} 使用 ${itemType.name}`);
 };
 
 const getSkills = (m) => {
@@ -186,11 +212,13 @@ const selectMonster = async (ctx, state, args) => {
       return m.blood > 0;
     });
     const monsterList = selectableMonsters.map((m, i) => {
-      const x = String.fromCharCode(i + charStartCode);
-      return `${x}. ${m.name} (血量 \`${m.blood}\`)`
-    }).join('\n');
+        const x = String.fromCharCode(i + charStartCode);
+        return `${x}. ${m.name} (血量 \`${m.blood}\`)`;
+      })
+      .join('\n');
 
-    return ctx.send(`遇到了 ${state.data.enemy.name}!\n请选择出战的精灵: \n${monsterList}`);
+    return ctx.send(
+      `遇到了 ${state.data.enemy.name}!\n请选择出战的精灵: \n${monsterList}`);
   } else {
     await service.changeMonster(ctx, state, idx);
     const skills = getSkills(m);
@@ -198,7 +226,7 @@ const selectMonster = async (ctx, state, args) => {
       const x = String.fromCharCode(i + charStartCode);
       return `${x}. ${e.name}`;
     });
-    return ctx.send(`决定就是你的 ${m.name}! \n请选择技能 \n ${skillList}`);
+    return ctx.send(`决定就是你的 ${m.name}! \n请选择技能 \n ${skillList.join('\n')}`);
   }
 
 };
@@ -212,10 +240,11 @@ const fightLoop = async (ctx, state, args) => {
       const x = String.fromCharCode(i + charStartCode);
       return `${x}. ${e.name}`;
     });
-    return ctx.send(`无效操作，请选择技能 \n ${skillList}`);
+    return ctx.send(`无效操作，请选择技能 \n ${skillList.join('\n')}`);
   }
 
-  const c = args[0]; const idx = c.charCodeAt(0) - charStartCode;
+  const c = args[0];
+  const idx = c.charCodeAt(0) - charStartCode;
   const skills = getSkills(curMonster);
   const skill = skills[idx];
   const skillList = skills.map((e, i) => {
@@ -223,7 +252,7 @@ const fightLoop = async (ctx, state, args) => {
     return `${x}. ${e.name}`;
   });
   if (!skill) {
-    return ctx.send(`无效操作，请选择技能 \n ${skillList}`);
+    return ctx.send(`无效操作，请选择技能 \n ${skillList.join('\n')}`);
   }
 
   const enemySkills = getSkills(state.data.enemy);
@@ -238,26 +267,65 @@ const fightLoop = async (ctx, state, args) => {
   const eLeft = state.data.enemy.blood - skillAtk;
   if (eLeft <= 0) {
     await service.resetNormal(ctx, state);
-    await ctx.send(`敌方 ${state.data.enemy.name} 已经阵亡，胜利`);
+    const card = await pokecard(pokecardConstants.COMMAND_MONSTER_PK_WIN, [
+      curMonster, state.data.enemy
+    ], [curPlayer, curPlayer], [true, false]);
+    await ctx.sendCard(card, `赢了！！！Yeah`);
+
+    const getChange = () => {
+      const min = Math.ceil(10);
+      const max = Math.floor(50);
+      return Math.floor(Math.random() * (max - min)) + min;
+    };
+
+    const getExp = () => {
+      const min = Math.ceil(10);
+      const max = Math.floor(50);
+      return Math.floor(Math.random() * (max - min)) + min;
+    };
+
+    curPlayer.change += getChange();
+    curMonster.exp += getExp();
+    for (let i =0; i< curPlayer.monsters.length; ++i) {
+
+      if (curPlayer.monsters[i]._id === curMonster._id) {
+        curPlayer.monsters[i].exp = curMonster.exp;
+      }
+    }
+
+    await player.repository.updateById(ctx, curPlayer._id, {
+      monsters: curPlayer.monsters,
+      change: curPlayer.change
+    });
     return;
   }
 
   await service.defend(ctx, state, enemySkillAtk);
   const mLeft = curMonster.blood - enemySkillAtk;
-  setTimeout(() => {
-    ctx.send(`敌方 ${state.data.enemy.name} 使用了 ${enemySkill.name}`);
+  setTimeout(async () => {
+    await ctx.send(`敌方 ${state.data.enemy.name} 使用了 ${enemySkill.name}`);
     if (mLeft <= 0) {
-      service.resetNormal(ctx, state);
-      ctx.send(`我方 ${curMonster.name} 已经阵亡，失败`);
-    }}, 500);
+      try {
+
+        service.resetNormal(ctx, state);
+        const card = await pokecard(pokecardConstants.COMMAND_MONSTER_PK_FAIL, [
+          curMonster, state.data.enemy
+        ], [curPlayer, curPlayer], [false, true]);
+        await ctx.sendCard(card, `输了QAQ`);
+      } catch(e) {
+        console.log(e);
+      }
+    }
+  }, 500);
   if (mLeft <= 0) {
     return;
   }
 
   setTimeout(() => {
     ctx.send(`我方 ${curMonster.name} 剩余血量 ${mLeft}\n` +
-             `敌方 ${state.data.enemy.name} 剩余血量 ${eLeft}\n` +
-             `请选择技能:\n ${skillList}`)}, 1000);
+      `敌方 ${state.data.enemy.name} 剩余血量 ${eLeft}\n` +
+      `请选择技能:\n ${skillList.join('\n')}`);
+  }, 1000);
 };
 
 const fight = async (ctx, state, args) => {
