@@ -3,10 +3,7 @@ const ObjectID = require('mongodb')
 const error = require('./error');
 const monsterService = require('./monster')
   .service;
-const playerRepository = require('./player')
-  .repository;
-const playerService = require('./player')
-  .service;
+const player = require('./player');
 const shopService = require('./shop')
   .service;
 const inventoryService = require('./inventory')
@@ -76,11 +73,11 @@ const service = {
     }
   },
 
-  enterBattble: (ctx, state) => {
+  enterBattble: async (ctx, state, {enemy, curMonster}) => {
    if (state.state === STATE_NORMAL) {
       await repository.updateById(ctx, state._id,
           {state: STATE_IN_BATTLE,
-           data: {  }});
+           data: { enemy, curMonster }});
     }
   },
 
@@ -92,7 +89,7 @@ const service = {
 
 const chooseMonsterForItem = async (ctx, args) => {
   const currentUser = ctx.currentUser;
-  const player = await playerRepository.getByUid(ctx, currentUser.id);
+  const player = await player.repository.getByUid(ctx, currentUser.id);
   if (!player) {
     return await error.playerNotFound(ctx);
   }
@@ -136,11 +133,51 @@ const chooseMonsterForItem = async (ctx, args) => {
       monsterService.getSpecieseById(m.species).blood,
       (m.blood + itemType.buff));
 
-  await playerService.setMonsterHP(ctx, player, monsterIdx, newHp);
+  await player.service.setMonsterHP(ctx, player, monsterIdx, newHp);
   await inventoryService.useItem(ctx, currentUser, state.data.inventory_idx);
   await service.resetNormal(ctx, state);
 
   return ctx.send(`对 ${player.monsters[monsterIdx].name} 使用 ${itemType.name}`);
+};
+
+const selectMonster = (ctx, state, args) => {
+  if (args.length !== 1) {
+    return error.invalidCommand(ctx);
+  }
+
+  const curPlayer = player.service.getCurrentPlayer(ctx);
+  // TODO: player init ?
+
+  const c = args[1];
+  const idx = c.charCodeAt(0) - charStartCode;
+  const m = player.monsters[idx];
+  if (!m) {
+    const selectableMonsters = curPlayer.monsters.filter((m) => {
+      return m.blood > 0;
+    });
+    const monsterList = selectableMonsters.map((m, i) => {
+      const x = String.fromCharCode(i + charStartCode);
+      return `${x}. ${m.name} (血量 \`${m.blood}\`)`
+    }).join('\n');
+
+    return ctx.send(`遇到了 ${state.data.enemy.name}!\n请选择出战的精灵: \n${monsterList}`);
+  }
+
+};
+
+const fightLoop = (ctx, state, args) => {
+};
+
+const fight = async (ctx, args) => {
+  const currentUser = ctx.currentUser;
+  const state = service.getByUser(currentUser);
+
+  if (state.data.curMonster === null) {
+    // should select monster
+    return await selectMonster(ctx, state, args);
+  }
+
+  return await fightLoop(ctx, state, args);
 };
 
 const handler = async (ctx, args) => {
@@ -149,7 +186,7 @@ const handler = async (ctx, args) => {
 
   switch (state.state) {
     case STATE_IN_BATTLE:
-      return ;
+      return await fight(ctx, args);
 
     case STATE_CHOOSING_MONSTER_FOR_ITEM:
       return await chooseMonsterForItem(ctx, args);

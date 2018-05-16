@@ -1,4 +1,8 @@
+const error = require('./error')
+const player = require('./player');
 const playStateService = require('./playState')
+  .service;
+const monsterService = require('./monster')
   .service;
 
 const charStartCode = 97;
@@ -46,7 +50,26 @@ const listPlaces = async (ctx, args) => {
   ctx.send(text);
 };
 
+const getMaybeRandomMonster = async (ctx, args) => {
+  if (Math.random() * 100 % 2 === 0) {
+    return null;
+  }
+
+  return await monsterService.random();
+};
+
 const goPlace = async (ctx, args) => {
+
+  // At least one of monster is alive.
+  const curPlayer = await player.service.getCurrentPlayer(ctx);
+  const selectableMonsters = curPlayer.monsters.filter((m) => {
+    return m.blood > 0;
+  });
+
+  if (selectableMonsters.length === 0) {
+    return await ctx.send(`${curPlayer.name} 没有活跃的精灵`);
+  }
+
   const c = args[0];
   const idx = c.charCodeAt(0) - charStartCode;
   const place = getPlaceByIdx(idx);
@@ -54,12 +77,27 @@ const goPlace = async (ctx, args) => {
     return await error.placeItemNotFound(ctx);
   }
 
+  const currentUser = ctx.currentUser;
+
   playStateService.enterBattble(
       ctx,
       await playStateService.getByUser(ctx, currentUser),
       {});
 
-  return ctx.send(`进入 ${place.name}`);
+  const monster = await getMaybeRandomMonster(ctx, args);
+
+  if (monster === null) {
+    return ctx.send(`在 ${place.name} 中没遇到精灵`);
+  } else {
+    const state = playStateService.getByUser(ctx, currentUser);
+    playStateService.enterBattble(ctx, state, {enemy: monster, curMonster: null});
+    const monsterList = selectableMonsters.map((m, i) => {
+      const x = String.fromCharCode(i + charStartCode);
+      return `${x}. ${m.name} (血量 \`${m.blood}\`)`
+    }).join('\n');
+
+    return ctx.send(`遇到了 ${monster.name}!\n请选择出战的精灵: \n${monsterList}`);
+  }
 };
 
 const handler = async (ctx, args) => {
