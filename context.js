@@ -65,21 +65,28 @@ module.exports = class Context {
 
   async sendCard(card) {
     const sendMessage = async (vchannelId, text, imageUrl) => {
-      const resp = await bearychat.message.create({
+      const payload = {
         token: config.bearychat.token,
         vchannel_id: vchannelId,
         text,
         attachments: [{
-          images: [{url: imageUrl}]
+          images: [{
+            url: imageUrl,
+            width: 500,
+            height: 250
+          }]
         }]
-      });
+      };
+
+      const resp = await bearychat.message.create(payload);
 
       return resp.json();
     };
 
-    const imageUrl = card.getBase64();
+    const imageUrl = await card.getBase64();
     const vchannelId = this.currentMessage.vchannel_id;
-    const text = `${this.rtm.mention(this.currentUser)} ${this.currentMessage.text}`;
+    const text =
+      `${this.rtm.mention(this.currentUser)} ${this.currentMessage.text}`;
 
     await sendMessage(vchannelId, text, imageUrl);
   }

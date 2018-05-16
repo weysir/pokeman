@@ -27,8 +27,9 @@ const handler = async (ctx, args) => {
       monsters: [m],
     });
   }
+  curPlayer.avatarUrl = 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/98/International_Pok%C3%A9mon_logo.svg/1200px-International_Pok%C3%A9mon_logo.svg.png';
 
-  const card = pokecard(pokecardConstants.COMMAND_PLAYER_INIT, [], [curPlayer], []);
+  const card = await pokecard(pokecardConstants.COMMAND_PLAYER_INIT, [], [curPlayer], []);
 
   await ctx.sendCard(card);
 };
