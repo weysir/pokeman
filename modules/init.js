@@ -3,6 +3,8 @@ const rtm = require('bearychat')
 const player = require('./player');
 const monster = require('./monster');
 const error = require('./error');
+const pokecard = require('../pokecard/generatorRegistry');
+const pokecardConstants = require('../pokecard/constants');
 
 const handler = async (ctx, args) => {
   if (args.length !== 0) {
@@ -26,20 +28,9 @@ const handler = async (ctx, args) => {
     });
   }
 
-  const curMessage = ctx.currentMessage;
+  const card = pokecard(pokecardConstants.COMMAND_PLAYER_INIT, [], [curPlayer], []);
 
-  const text = [
-    `初始化当前玩家`,
-    `- 玩家名: ${curPlayer.name}`,
-    `- 性别: ${curPlayer.gender}`,
-    `- 钱包余额：${curPlayer.change}`
-  ].join(`\n`);
-
-  const respMessage = rtm
-    .message
-    .refer(curMessage, text);
-
-  await ctx.rtm.send(respMessage);
+  await ctx.sendCard(card);
 };
 
 module.exports = {
