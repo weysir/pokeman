@@ -13,4 +13,7 @@ module.exports = mapToPaths({
   [constants.COMMAND_MONSTER_PK_WIN]: 'bg-pkwin.jpeg',
   [constants.COMMAND_MONSTER_PK_FAIL]: 'bg-pkfail.jpeg',
   [constants.MONSTER_PIKACHU]: 'monster-pikachu.png',
+  [constants.MONSTER_PSYDUCK]: 'monster-psyduck.png',
+  [constants.MONSTER_DOGE]: 'monster-goge.png',
+  [constants.SPECIAL_BEAR]: 'special-bear.png',
 });
