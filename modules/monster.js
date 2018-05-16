@@ -43,7 +43,7 @@ const specieses = {
     name: '神烦狗',
     blood: 200,
     skills: {
-      eyeKilling : {
+      eyeKilling: {
         name: '眼神杀',
         atk: 99,
       },
@@ -94,6 +94,7 @@ const service = {
 
     return {
       _id: id,
+      type: species.type,
       name: species.name,
       species: speciesId,
       exp: 0,
@@ -107,15 +108,9 @@ const service = {
       return;
     }
 
-    const monsters = curPlayer.monsters.map(
-      m => {
-        const species = specieses[m.species];
-        m.type = species.type;
-
-        return m;
-      });
-
-    const card = await pokecard(pokecardConstants.COMMAND_MONSTER_LIST, monsters, [curPlayer], []);
+    const monsters = curPlayer.monsters;
+    const card = await pokecard(pokecardConstants.COMMAND_MONSTER_LIST,
+      monsters, [curPlayer], []);
 
     await ctx.sendCard(card);
   }

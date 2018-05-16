@@ -2,7 +2,6 @@ const Jimp = require('jimp');
 const { Image } = require('canvas');
 
 module.exports = async function readAvatarImage(avatarUrl, size, { grayscale, rounded } = {}) {
-  let imageOp = await Jimp.read(avatarUrl);
   return new Promise(resolve => {
     imageOp.resize(size, size);
     grayscale && imageOp.grayscale();

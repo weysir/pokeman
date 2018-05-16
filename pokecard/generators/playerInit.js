@@ -27,8 +27,8 @@ async function putPlayerInformationText(ctx, player) {
 }
 
 async function putPlayerAvatarImage(ctx, player) {
-  const avatarImage = await readAvatarImage(player.avatarUrl, avatarSize);
-  ctx.drawImage(avatarImage, avatarStartX, startY - 16, avatarSize, avatarSize);
+  // const avatarImage = await readAvatarImage(player.avatar_url, avatarSize);
+  // ctx.drawImage(avatarImage, avatarStartX, startY - 16, avatarSize, avatarSize);
 }
 
 
@@ -36,7 +36,7 @@ async function putPlayerAvatarImage(ctx, player) {
 //
 // player: Object<{
 //   name: string,
-//   avatarUrl: string,
+//   avatar_url: string,
 //   change: string,
 //   gender: string,
 // }>

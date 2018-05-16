@@ -45,7 +45,7 @@ const loadDecoratedImage = async (url, grayscaled) => {
 //
 // players: Array<Object<{
 //   name: string,
-//   avatarUrl: string,
+//   avatar_url: string,
 //   money: string,
 //   gender: string,
 // }>>
@@ -60,10 +60,10 @@ module.exports = async function generate(ctx, monsters, players, pkResults) {
     const avatarOffsetX = (monsterOffsetX + monsterWidth) - (avatarSize / 2);
 
     const monsterImage = await loadDecoratedImage(imageUrlRegistry[monster.type], hasFailed);
-    const avatarImage = await readAvatarImage(player.avatarUrl, avatarSize, { grayscale: hasFailed, rounded: true });
+    // const avatarImage = await readAvatarImage(player.avatar_url, avatarSize, { grayscale: hasFailed, rounded: true });
 
     ctx.drawImage(monsterImage, monsterOffsetX, monsterOffsetY, monsterWidth, monsterHeight);
-    ctx.drawImage(avatarImage, avatarOffsetX, avatarOffsetY, avatarSize, avatarSize);
+    // ctx.drawImage(avatarImage, avatarOffsetX, avatarOffsetY, avatarSize, avatarSize);
   }));
 };
 

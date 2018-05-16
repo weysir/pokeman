@@ -18,5 +18,5 @@ module.exports = mapToPaths({
   [constants.MONSTER_PIKACHU]: 'monster-pikachu.png',
   [constants.MONSTER_PSYDUCK]: 'monster-psyduck.png',
   [constants.MONSTER_DOGE]: 'monster-goge.png',
-  [constants.SPECIAL_BEAR]: 'special-bear.png',
+  [constants.SPECIAL_BEAR]: 'special-beary.png',
 });

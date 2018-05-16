@@ -1,8 +1,10 @@
-const error = require('./error')
+const error = require('./error');
 const player = require('./player');
 const playState = require('./playState');
 const monsterService = require('./monster')
   .service;
+const pokecard = require('../pokecard/generatorRegistry');
+const pokecardConstants = require('../pokecard/constants');
 
 const charStartCode = 97;
 
@@ -12,20 +14,16 @@ const places = [
     desc: '大概率遇到皮卡丘',
   },
   {
-    name: '啪嗒水域',
-    desc: '大概率遇到可达鸭',
-  },
-  {
     name: '有很多小龙虾的水域',
     desc: '可能会遇到。。。你猜啊',
   },
   {
-    name: '什么都没有的空地',
-    desc: '可能什么都不会遇到，看心情吧',
-  },
-  {
     name: '卫星大厦 802',
     desc: '可能会遇到`超级无敌厉害`的`一熊宝宝`',
+  },
+  {
+    name: '什么都没有的空地',
+    desc: '可能什么都不会遇到，看心情吧',
   },
 ];
 
@@ -43,10 +41,12 @@ const _outputPlace = (i, e) => {
 };
 
 const listPlaces = async (ctx, args) => {
-  const text = getPlaces().map((e, i) => {
+  const card = await pokecard(pokecardConstants.COMMAND_MONSTER_OPTIONS,
+                              [], [], []);
+
+  await ctx.sendCard(card, getPlaces().map((e, i) => {
     return _outputPlace(i, e);
-  }).join('\n');
-  ctx.send(text);
+  }).join('\n'));
 };
 
 const getMaybeRandomMonster = async (ctx, args) => {
@@ -86,7 +86,7 @@ const goPlace = async (ctx, args) => {
     await playState.service.enterBattble(ctx, state, { enemy: monster, curMonster: null });
     const monsterList = selectableMonsters.map((m, i) => {
       const x = String.fromCharCode(i + charStartCode);
-      return `${x}. ${m.name} (血量 \`${m.blood}\`)`
+      return `${x}. ${m.name} (血量 \`${m.blood}\`)`;
     }).join('\n');
 
     return ctx.send(`遇到了 ${monster.name}!\n请选择出战的精灵: \n${monsterList}`);

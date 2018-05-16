@@ -26,7 +26,7 @@ async function putBackgroundImage(ctx, bgUrl) {
 //
 // players: Array<Object<{
 //   name: string,
-//   avatarUrl: string,
+//   avatar_url: string,
 //   money: string,
 //   gender: string,
 // }>>
