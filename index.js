@@ -15,6 +15,7 @@ const go = require('./modules/go');
 const attack = require('./modules/attack');
 const player = require('./modules/player');
 const playState = require('./modules/playState');
+const error = require('./modules/error');
 
 const setupDB = async () => {
   const client = await MongoClient.connect(config.database.uri, {
@@ -78,6 +79,8 @@ const execCommand = async (ctx, commandHandler, args) => {
   if (commandHandler !== null) {
     // NOTE 去掉主命令(eg: player / shop)
     await commandHandler(ctx, argv);
+  } else {
+    await error.invalidCommand(ctx);
   }
 };
 
