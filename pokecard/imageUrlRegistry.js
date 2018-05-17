@@ -17,6 +17,6 @@ module.exports = mapToPaths({
   [constants.COMMAND_MONSTER_OPTIONS]: 'bg-catch-options.jpg',
   [constants.MONSTER_PIKACHU]: 'monster-pikachu.png',
   [constants.MONSTER_PSYDUCK]: 'monster-psyduck.png',
-  [constants.MONSTER_DOGE]: 'monster-goge.png',
-  [constants.SPECIAL_BEAR]: 'special-beary.png',
+  [constants.MONSTER_DOGE]: 'monster-doge.png',
+  [constants.SPECIAL_BEAR]: 'special-bear.png',
 });

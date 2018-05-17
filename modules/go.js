@@ -8,8 +8,7 @@ const pokecardConstants = require('../pokecard/constants');
 
 const charStartCode = 97;
 
-const places = [
-  {
+const places = [{
     name: '霹雳草丛',
     desc: '大概率遇到皮卡丘',
   },
@@ -41,12 +40,13 @@ const _outputPlace = (i, e) => {
 };
 
 const listPlaces = async (ctx, args) => {
-  const card = await pokecard(pokecardConstants.COMMAND_MONSTER_OPTIONS,
-                              [], [], []);
+  const card = await pokecard(pokecardConstants.COMMAND_MONSTER_OPTIONS, [], [], []);
 
-  await ctx.sendCard(card, getPlaces().map((e, i) => {
-    return _outputPlace(i, e);
-  }).join('\n'));
+  await ctx.sendCard(card, getPlaces()
+    .map((e, i) => {
+      return _outputPlace(i, e);
+    })
+    .join('\n'));
 };
 
 const getMaybeRandomMonster = async (ctx, args) => {
@@ -61,35 +61,44 @@ const goPlace = async (ctx, args) => {
 
   // At least one of monster is alive.
   const curPlayer = await player.service.getCurrentPlayer(ctx);
-  const selectableMonsters = curPlayer.monsters.filter((m) => {
-    return m.blood > 0;
-  });
+  const selectableMonsters = curPlayer.monsters.filter((m) => m.blood > 0);
 
   if (selectableMonsters.length === 0) {
-    return await ctx.send(`${curPlayer.name} 没有活跃的精灵`);
+    await ctx.send(`${curPlayer.name} 没有活跃的精灵`);
+    return;
   }
 
   const c = args[0];
   const idx = c.charCodeAt(0) - charStartCode;
   const place = getPlaceByIdx(idx);
   if (!place) {
-    return await error.placeItemNotFound(ctx);
+    await error.placeItemNotFound(ctx);
+    return;
   }
 
   const currentUser = ctx.currentUser;
   const monster = await getMaybeRandomMonster(ctx, args);
 
   if (!monster) {
-    return ctx.send(`在 ${place.name} 中没遇到精灵`);
+    await ctx.send(`在 ${place.name} 中没遇到精灵`);
+    return;
   } else {
     const state = await playState.service.getByUser(ctx, currentUser);
-    await playState.service.enterBattble(ctx, state, { enemy: monster, curMonster: null });
+    await playState.service.enterBattble(ctx, state, {
+      enemy: monster,
+      curMonster: null
+    });
     const monsterList = selectableMonsters.map((m, i) => {
-      const x = String.fromCharCode(i + charStartCode);
-      return `${x}. ${m.name} (血量 \`${m.blood}\`)`;
-    }).join('\n');
+        const x = String.fromCharCode(i + charStartCode);
+        return `${x}. ${m.name} (血量 \`${m.blood}\`)`;
+      })
+      .join('\n');
 
-    return ctx.send(`遇到了 ${monster.name}!\n请选择出战的精灵: \n${monsterList}`);
+    const card = await pokecard(pokecardConstants.COMMAND_MONSTER_LIST,
+      selectableMonsters, [curPlayer], []);
+
+    await ctx.sendCard(card,
+      `遇到了 ${monster.name}!\n请选择出战的精灵: \n${monsterList}`);
   }
 };
 
